@@ -1,6 +1,4 @@
-pipeline {
-
-  agent any
+node('jenkins-slave') {
 
   stages {
 
