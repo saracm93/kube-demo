@@ -21,7 +21,9 @@ pipeline {
       }
       stage('Deploy App') {
         steps {
-          sh '/usr/local/bin/kubectl apply -f deployment.yaml'
+          script {
+            kubernetesDeploy(configs: "deployment.yml")
+          }
         }
       }
     }
