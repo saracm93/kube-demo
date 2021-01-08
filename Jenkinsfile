@@ -1,46 +1,22 @@
 pipeline {
+    agent { label 'jenkins-slave' }
 
-  environment {
-    registry = "192.168.1.81:5000/justme/myweb"
-    dockerImage = ""
-  }
-
-  agent any
-
-  stages {
-
-    stage('Checkout Source') {
-      steps {
-        git 'https://github.com/justmeandopensource/playjenkins.git'
+    stages {
+      stage('Checkout Source') {
+        steps {
+          git 'https://github.com/saracm93/kube-demo.git'
+        }
       }
-    }
-
-    stage('Build image') {
-      steps{
-        script {
-          dockerImage = docker.build registry + ":$BUILD_NUMBER"
+      stage('Build docker image') {
+        steps {
+          sh "sudo docker build . -t nginx:1"
+        }
+      }
+      stage('Push Image to OCIR'){
+        steps {
+          sh "sudo docker login -u 'kubernetes' -p 'r9A:K<61Hv)2D5]X5AW+' syd.ocir.io"
+          sh "sudo docker tag nginx:1 syd.ocir.io/sdeeaoej8ii1/nginx:1"
+          sh 'sudo docker push syd.ocir.io/sdeeaoej8ii1/nginx:1'
         }
       }
     }
-
-    stage('Push Image') {
-      steps{
-        script {
-          docker.withRegistry( "" ) {
-            dockerImage.push()
-          }
-        }
-      }
-    }
-
-    stage('Deploy App') {
-      steps {
-        script {
-          kubernetesDeploy(configs: "deployment.yaml", kubeconfigId: "mykubeconfig")
-        }
-      }
-    }
-
-  }
-
-}
