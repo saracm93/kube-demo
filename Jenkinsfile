@@ -20,9 +20,8 @@ pipeline {
         }
       }
       stage('Deploy App') {
-        steps {
+            withKubeConfig([credentialsId: 'config', serverUrl: 'https://kubernetes.default:443']) {
             sh 'kubectl apply -f deployment.yaml'
-        }
       }
     }
 }
