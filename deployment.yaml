@@ -22,7 +22,7 @@ spec:
         app: nginx
     spec:
       containers:
-      - image: syd.ocir.io/sdeeaoej8ii1/nginx:demo
+      - image: nginx
         imagePullPolicy: Always
         name: nginx
         ports:
