@@ -1,17 +1,38 @@
 pipeline {
-    agent { label 'jenkins-slave' } 
-    stages {
-        stage('Checkout') {
-          steps {
-            git url:'https://github.com/saracm93/kube-demo.git'
-          }
-        }
-        stage('deploy') {
-          steps {
-            kubernetes {
-              yamlFile 'deployment.yaml'
-            }
-          }
-        }
+  agent any
+  stages {
+    stage('Docker Build') {
+      steps {
+        sh "docker build -t saracm118/nginx:${env.BUILD_NUMBER} ."
+      }
     }
+    stage('Docker Push') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
+          sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
+          sh "docker push saracm118/nginx:${env.BUILD_NUMBER}"
+        }
+      }
+    }
+    stage('Docker Remove Image') {
+      steps {
+        sh "docker rmi saracm118/nginx:${env.BUILD_NUMBER}"
+      }
+    }
+    stage('Apply Kubernetes Files') {
+      steps {
+          withKubeConfig([credentialsId: 'kubeconfig']) {
+          sh 'cat deployment.yaml | sed "s/{{BUILD_NUMBER}}/$BUILD_NUMBER/g" | kubectl apply -f -'
+        }
+      }
+  }
+}
+post {
+    success {
+      slackSend(message: "Pipeline is successfully completed.")
+    }
+    failure {
+      slackSend(message: "Pipeline failed. Please check the logs.")
+    }
+}
 }
