@@ -1,30 +1,52 @@
 pipeline {
-  agent { label 'jenkins-slave' }
+
+  environment {
+    registry = "saracm118/nginx"
+    registryCredential = 'DockerHub'
+    dockerImage = ""
+  }
+
+  agent {label 'jenkins-slave'}
+
   stages {
-    stage('Docker Build') {
+
+    stage('Checkout Source') {
       steps {
-        sh "docker build -t saracm118/nginx:${env.BUILD_NUMBER} ."
+        git 'https://github.com/saracm93/kube-demo.git'
       }
     }
-    stage('Docker Push') {
-      steps {
-        withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
-          sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
-          sh "docker push saracm118/nginx:${env.BUILD_NUMBER}"
+
+    stage('Build image') {
+      steps{
+        script {
+          dockerImage = docker.build registry + ":$BUILD_NUMBER"
         }
       }
     }
-    stage('Docker Remove Image') {
-      steps {
-        sh "docker rmi saracm118/nginx:${env.BUILD_NUMBER}"
+
+    stage('Push Image') {
+      steps{
+        script {
+          docker.withRegistry( "" ) {
+            dockerImage.push()
+          }
+        }
       }
     }
-    stage('Apply Kubernetes Files') {
+
+    stage('Cleaning up') { 
       steps {
-//          withKubeConfig([credentialsId: 'kubeconfig']) {
-          sh 'cat deployment.yaml | sed "s/{{BUILD_NUMBER}}/$BUILD_NUMBER/g" | kubectl apply -f -'
-//        }
+        sh "docker rmi $registry:$BUILD_NUMBER"
       }
+    }
+
+    stage('Deploy App') {
+      steps {
+        script {
+          kubernetesDeploy(configs: "deployment.yaml", kubeconfigId: "config")
+        }
+      }
+    }
   }
 }
 post {
