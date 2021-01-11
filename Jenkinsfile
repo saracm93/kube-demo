@@ -1,18 +1,8 @@
-pipeline {
-    agent { label 'jenkins-slave' }
-
-    stages {
-      stage('Checkout Source') {
-        steps {
-          git 'https://github.com/saracm93/kube-demo.git'
-        }
-      }
-      stage('Deploy App') {
-        steps {
-          script {
-            kubernetesDeploy(configs: "deployment.yaml")
-          }
-        }
-      }
-  }
+node('jenkins-slave') {
+    
+     stage('unit-tests') {
+        sh(script: """
+            docker run --rm alpine /bin/sh -c "echo hello world"
+        """)
+    }
 }
