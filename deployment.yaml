@@ -4,7 +4,7 @@ metadata:
   labels:
     app: nginx
   name: nginx
-  namespace: development
+  namespace: jenkins
 spec:
   replicas: 3
   revisionHistoryLimit: 10
@@ -56,7 +56,7 @@ metadata:
   labels:
     app: nginx
   name: nginx
-  namespace: development
+  namespace: jenkins
 spec:
   ports:
   - port: 80
@@ -69,7 +69,7 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: nginx-ingress
-  namespace: development
+  namespace: jenkins
 spec:
   tls:
   - hosts:
