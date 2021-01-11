@@ -1,8 +1,12 @@
-node('jenkins-slave') {
-    
-     stage('unit-tests') {
-        sh(script: """
-            docker run --rm alpine /bin/sh -c "echo hello world"
-        """)
+pipeline {
+    agent { label 'jenkins-slave' } {
+        stage('Checkout') {
+          steps {
+            git url:'https://github.com/saracm93/kube-demo.git'
+          }
+        }
+        kubernetes {
+          yamlFile 'deployment.yaml'
+        }
     }
 }
