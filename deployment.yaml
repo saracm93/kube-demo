@@ -4,7 +4,9 @@ metadata:
   labels:
     app: nginx
   name: nginx
-  namespace: jenkins
+  annotations:
+    kubernetes.io/change-cause: v1.19.2
+  namespace: development
 spec:
   replicas: 3
   revisionHistoryLimit: 10
@@ -22,7 +24,7 @@ spec:
         app: nginx
     spec:
       containers:
-      - image: nginx
+      - image: nginx:1.19.2
         imagePullPolicy: Always
         name: nginx
         ports:
@@ -56,7 +58,7 @@ metadata:
   labels:
     app: nginx
   name: nginx
-  namespace: jenkins
+  namespace: development
 spec:
   ports:
   - port: 80
@@ -69,7 +71,7 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: nginx-ingress
-  namespace: jenkins
+  namespace: development
 spec:
   tls:
   - hosts:
