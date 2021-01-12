@@ -44,18 +44,7 @@ pipeline {
       steps {
         sh 'kubectl apply -f deployment.yaml'
         sh 'kubectl apply -f traffic-generator.yaml'
-//        script {
-//          kubernetesDeploy(configs: "deployment.yaml", kubeconfigId: "7e77d7ea-aeeb-4f6b-8bd0-869e685cf279")
-//      }
+     }
     }
   }
-}
-//post {
-//    success {
-//      slackSend(message: "Pipeline is successfully completed.")
-//    }
-//    failure {
-//      slackSend(message: "Pipeline failed. Please check the logs.")
-//    }
-//}
 }
