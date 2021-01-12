@@ -5,7 +5,7 @@ metadata:
     app: nginx
   name: nginx
   annotations:
-    kubernetes.io/change-cause: v1.19.2
+    kubernetes.io/change-cause: v1.19.1
   namespace: development
 spec:
   replicas: 3
@@ -24,7 +24,7 @@ spec:
         app: nginx
     spec:
       containers:
-      - image: nginx:1.19.2
+      - image: nginx:1.19.1
         imagePullPolicy: Always
         name: nginx
         ports:
